@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import jwt from "jsonwebtoken";
+import uploadRoutes from "./routes/upload.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,14 +25,8 @@ app.post("/auth/login", (req, res) => {
   res.json({ token, user: { userId: user.userId, username: user.username } });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TODO Task 3: serve the uploads/ folder statically so returned URLs open.
-//   app.use("/uploads", express.static("uploads"));
-//
-// TODO Task 3: wire the upload route under /api.
-//   import uploadRoutes from "./routes/upload.routes.js";
-//   app.use("/api", uploadRoutes);
-// ─────────────────────────────────────────────────────────────────────────────
+app.use("/uploads", express.static("uploads"));
+app.use("/api", uploadRoutes);
 
 app.get("/", (req, res) => res.json({ ok: true, service: "threadbase-upload-server" }));
 

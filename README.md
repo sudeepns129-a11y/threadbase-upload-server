@@ -1,8 +1,8 @@
-# Threadbase - Upload Server Starter
+# Threadbase - Upload Server
 
-Starter repo for **LU 4.9 - File Upload with multer**.
+Authenticated image upload API for **Kalvium Assignment 4.11 - File Upload with multer**.
 
-`verifyToken` and a demo login already work. multer is **not** installed. There is no upload route and no static serving. Your job: install multer, configure storage + filter + limit, write `POST /api/upload` behind auth, and serve `uploads/` statically.
+The existing `verifyToken` middleware protects uploads. Multer stores accepted images in `uploads/` using generated filenames, and Express serves those files at `/uploads`.
 
 ## Setup
 
@@ -12,7 +12,7 @@ npm install
 npm start        # http://localhost:3001
 ```
 
-## Get a token
+## Authenticate
 
 ```bash
 curl -X POST http://localhost:3001/auth/login \
@@ -20,18 +20,20 @@ curl -X POST http://localhost:3001/auth/login \
   -d '{"username":"ada","password":"password"}'
 ```
 
-Copy the `token` from the response and use it as `Authorization: Bearer <token>`.
+Send the returned token as `Authorization: Bearer <token>`.
 
-## Files to create or edit
+## Upload an image
 
-| File | What to do |
-|------|------------|
-| `config/upload.js` | Create - multer instance (diskStorage + fileFilter + limits) |
-| `routes/upload.routes.js` | Create - `POST /api/upload` with `verifyToken` then `upload.single("avatar")` |
-| `server.js` | Wire `express.static("uploads")` and the upload route (see TODOs) |
+Send an authenticated `POST /api/upload` as `multipart/form-data` with a file field named `avatar`. JPEG, PNG, WebP, and GIF images up to 5 MB are accepted. Success returns HTTP 201:
 
-Do **not** edit `middleware/auth.js`.
+```json
+{ "url": "/uploads/<generated-filename>" }
+```
 
-## Test your work
+Open `http://localhost:3001` followed by the returned URL to view the uploaded image. Requests without a valid token, unsupported file types, and files over 5 MB are rejected. Uploaded files are ignored by Git.
 
-In Thunder Client / Postman: `POST /api/upload`, `Authorization: Bearer <token>`, body type **form-data**, field `avatar` (type: file) with an image. You should get a 201 with a `url`. Paste `http://localhost:3001<url>` in the browser - the image opens. A PDF should be rejected with 400. No token should give 401.
+## Development
+
+```bash
+npm run dev
+```
